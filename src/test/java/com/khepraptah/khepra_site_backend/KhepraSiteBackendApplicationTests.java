@@ -1,10 +1,10 @@
-package com.khepraptah.khepra_backend;
+package com.khepraptah.khepra_site_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class KhepraBackendApplicationTests {
+class KhepraSiteBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
