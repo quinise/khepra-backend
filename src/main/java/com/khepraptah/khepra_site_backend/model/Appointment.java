@@ -4,19 +4,31 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
 
 import java.util.Date;
 @Entity
+@Table(name = "appointments")
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "appointment_type")
     private String type;
+    @Column(name = "client_name")
     private String name;
+
+    @Column(name = "email")
     private String email;
+    @Column(name = "phone_number")
     private double phone_number;
+
+    @Column(name = "date")
     private Date date;
-    private boolean isVirtual;
+
+    @Column(name = "isVirtual")
+    private Boolean isVirtual;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -37,6 +49,6 @@ public class Appointment {
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }
 
-    public boolean getIsVirtual() { return isVirtual; }
-    public void setIsVirtual(boolean isVirtual) { this.isVirtual = isVirtual; }
+    public Boolean getIsVirtual() { return isVirtual; }
+    public void setIsVirtual(Boolean isVirtual) { this.isVirtual = isVirtual; }
 }
