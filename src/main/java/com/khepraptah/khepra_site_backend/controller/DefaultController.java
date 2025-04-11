@@ -10,12 +10,9 @@ public class DefaultController {
         System.out.println("DefaultController called from controller");
     }
 
-    @GetMapping
+    @GetMapping("/")
     public String getAllAppointments() {
         System.out.println("getAllAppointments called from controller");
         return "Default Controller";
     }
 }
-
-
-
