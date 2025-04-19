@@ -9,9 +9,11 @@ import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/appointments")
+@CrossOrigin(origins = "http://localhost:4200")
 public class AppointmentController {
     private final AppointmentService appointmentService;
 
@@ -31,12 +33,14 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public AppointmentDTO createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
-        return appointmentService.saveAppointment(appointmentDTO);
+    public ResponseEntity<AppointmentDTO> createAppointment(@RequestBody AppointmentDTO appointmentDTO) {
+        AppointmentDTO created = appointmentService.saveAppointment(appointmentDTO);
+        URI location = URI.create("/api/appointments/" + created.id());
+        return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<AppointmentDTO> updateAppointent(@PathVariable Long id, @RequestBody AppointmentDTO appointmentDTO) {
+    public ResponseEntity<AppointmentDTO> updateAppointment(@PathVariable Long id, @RequestBody AppointmentDTO appointmentDTO) {
         try {
             AppointmentDTO updatedAppointment = appointmentService.updateAppointment(id, appointmentDTO);
             return ResponseEntity.ok(updatedAppointment);
