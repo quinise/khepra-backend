@@ -59,13 +59,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     // Convert Appointment Entity to AppointmentDTO
     private AppointmentDTO convertToDTO(Appointment appointment) {
-        return new AppointmentDTO(appointment.getId(), appointment.getType(), appointment.getName(), appointment.getEmail(), appointment.getPhone_number(), appointment.getDate(), appointment.getIsVirtual());
+        return new AppointmentDTO(appointment.getId(), appointment.getType(), appointment.getUserId(), appointment.getName(), appointment.getEmail(), appointment.getPhone_number(), appointment.getDate(), appointment.getIsVirtual());
     }
 
     // Convert AppointmentDTO to Appointment Entity
     private Appointment convertToEntity(AppointmentDTO appointmentDTO) {
         Appointment appointment = new Appointment();
         appointment.setType(appointmentDTO.type());
+        appointment.setUserId(appointmentDTO.userId());
         appointment.setName(appointmentDTO.name());
         appointment.setEmail(appointmentDTO.email());
         appointment.setPhone_number(appointmentDTO.phone_number());
