@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -22,8 +23,28 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<AppointmentDTO> getAllAppointments() {
-        return appointmentService.getAllAppointments();
+    public ResponseEntity<List<AppointmentDTO>> getAppointments(
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String filter,
+            @RequestParam(required = false) Integer daysRange // optional, for extended control
+    ) {
+        List<AppointmentDTO> appointments = (userId != null && !userId.isEmpty())
+                ? appointmentService.getAppointmentsByUserId(userId)
+                : appointmentService.getAllAppointments();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if ("past".equalsIgnoreCase(filter)) {
+            appointments = appointments.stream()
+                    .filter(a -> a.getDate() != null && a.getDate().isBefore(now))
+                    .toList();
+        } else if ("upcoming".equalsIgnoreCase(filter)) {
+            appointments = appointments.stream()
+                    .filter(a -> a.getDate() != null && a.getDate().isAfter(now))
+                    .toList();
+        }
+
+        return ResponseEntity.ok(appointments);
     }
 
     @GetMapping("/{id}")

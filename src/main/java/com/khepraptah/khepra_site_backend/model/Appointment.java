@@ -25,7 +25,7 @@ public class Appointment {
     @Column(name = "email")
     private String email;
     @Column(name = "phone_number")
-    private double phone_number;
+    private String phoneNumber;
 
     @Column(name = "date")
     private Date date;
@@ -48,8 +48,8 @@ public class Appointment {
     public String getEmail() { return email; }
     public void setEmail(String email) {this.email = email;}
 
-    public double getPhone_number() { return phone_number; }
-    public void setPhone_number(double phone_number) { this.phone_number = phone_number; }
+    public String getPhoneNumber() { return phoneNumber; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
 
     public Date getDate() { return date; }
     public void setDate(Date date) { this.date = date; }
