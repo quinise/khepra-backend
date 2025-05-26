@@ -1,5 +1,6 @@
 package com.khepraptah.khepra_site_backend.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public record EventDTO(
@@ -9,6 +10,9 @@ public record EventDTO(
         String clientName,
         Date startDate,
         Date endDate,
+        int durationMinutes,
+        LocalDateTime startTime,
+        LocalDateTime endTime,
         String streetAddress,
         String city,
         String state,
