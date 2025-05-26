@@ -7,11 +7,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.*;
 
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @Table(name = "events")
-public class Event {
+public class Event implements Schedulable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,6 +32,15 @@ public class Event {
 
     @Column(name = "end_date")
     private Date endDate;
+
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
+
+    @Column(name = "duration")
+    private int durationMinutes;
 
     @Column(name = "street_address")
     private String streetAddress;
@@ -58,7 +69,6 @@ public class Event {
     public String getEventType() { return eventType; }
     public void setEventType(String eventType) { this.eventType = eventType; }
 
-
     public String getClientName() { return clientName; }
     public void setClientName(String clientName) { this.clientName = clientName; }
 
@@ -68,10 +78,37 @@ public class Event {
     public Date getEndDate() { return endDate; }
     public void setEndDate(Date endDate) { this.endDate = endDate; }
 
+    @Override
+    public LocalDateTime getStartTime() { return this.startTime; }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void calculateEndTime() {
+        if (startTime != null && durationMinutes > 0) {
+            this.endTime = startTime.plusMinutes(durationMinutes);
+        }
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime.plusMinutes(durationMinutes);
+    }
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+
+    public int getDuration() { return durationMinutes; }
+    public void setDuration(int durationMinutes) { this.durationMinutes = durationMinutes; }
+
     public String getStreetAddress() { return streetAddress; }
     public void setStreetAddress(String streetAddress) {this.streetAddress = streetAddress;}
 
-    public String getCity() { return city; }
+    @Override
+    public String getCity() { return this.city; }
     public void setCity(String city) {this.city = city;}
 
     public String getState() { return state; }
@@ -83,6 +120,12 @@ public class Event {
     public String getDescription() { return description; }
     public void setDescription(String description) {this.description = description;}
 
-    public Boolean getIsVirtual() { return isVirtual; }
+    public Boolean getIsVirtualRaw() { return isVirtual; }
+
     public void setIsVirtual(Boolean isVirtual) { this.isVirtual = isVirtual; }
+
+    @Override
+    public boolean isVirtual() {
+        return Boolean.TRUE.equals(isVirtual);
+    }
 }
