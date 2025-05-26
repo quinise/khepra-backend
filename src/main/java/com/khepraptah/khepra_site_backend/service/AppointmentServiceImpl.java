@@ -2,11 +2,15 @@ package com.khepraptah.khepra_site_backend.service;
 
 import com.khepraptah.khepra_site_backend.model.Appointment;
 import com.khepraptah.khepra_site_backend.model.AppointmentDTO;
+import com.khepraptah.khepra_site_backend.model.AppointmentType;
 import com.khepraptah.khepra_site_backend.repository.AppointmentRepository;
+import com.khepraptah.khepra_site_backend.service.ScheduleConflictService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -14,9 +18,11 @@ import java.util.stream.Collectors;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final ScheduleConflictService scheduleConflictService;
 
-    public AppointmentServiceImpl(AppointmentRepository appointmentRepository) {
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, ScheduleConflictService scheduleConflictService) {
         this.appointmentRepository = appointmentRepository;
+        this.scheduleConflictService = scheduleConflictService;
     }
 
     @Override
@@ -52,21 +58,28 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-    @Override
+    @Transactional
     public AppointmentDTO saveAppointment(AppointmentDTO dto) {
-        Appointment saved = appointmentRepository.save(convertToEntity(dto));
+        Appointment appointment = convertToEntity(dto);
+        scheduleConflictService.checkForConflicts(appointment);
+        Appointment saved = appointmentRepository.save(appointment);
         return convertToDto(saved);
     }
 
-    @Override
+    @Transactional
     public AppointmentDTO updateAppointment(Long id, AppointmentDTO dto) {
         Optional<Appointment> optional = appointmentRepository.findById(id);
         if (optional.isEmpty()) {
             throw new IllegalArgumentException("Appointment not found");
         }
+
         Appointment updated = convertToEntity(dto);
-        updated.setId(id);
-        return convertToDto(appointmentRepository.save(updated));
+        updated.setId(id); // Make sure to preserve the existing ID
+
+        scheduleConflictService.checkForConflicts(updated);
+
+        Appointment saved = appointmentRepository.save(updated);
+        return convertToDto(saved);
     }
 
     @Override
@@ -84,7 +97,12 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getEmail(),
                 appointment.getPhoneNumber(),
                 appointment.getDate(),
-                appointment.getIsVirtual()
+                appointment.getStartTime(),
+                appointment.getEndTime(),
+                appointment.getDuration(),
+                appointment.getCity(),
+                appointment.getIsVirtualRaw(),
+                appointment.getCreatedByAdmin()
         );
     }
 
@@ -97,7 +115,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setEmail(appointmentDTO.email());
         appointment.setPhoneNumber(appointmentDTO.phoneNumber());
         appointment.setDate(appointmentDTO.date());
+        appointment.setStartTime(appointmentDTO.startTime());
+        appointment.setEndTime(appointmentDTO.endTime());
+        try {
+            AppointmentType appointmentType = AppointmentType.valueOf(appointmentDTO.type().toUpperCase());
+            appointment.setDuration(appointmentType.getDurationMinutes());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid appointment type: " + appointmentDTO.type());
+        }
+
+        appointment.setCity(appointmentDTO.city());
         appointment.setIsVirtual(appointmentDTO.isVirtual());
+        appointment.setCreatedByAdmin(appointmentDTO.createdByAdmin());
         return appointment;
     }
 }
