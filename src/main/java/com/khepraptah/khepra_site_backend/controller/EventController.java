@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Vector;
 import java.net.URI;
@@ -36,10 +37,6 @@ public class EventController {
     public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
         EventDTO created = eventService.saveEvent(eventDTO);
         URI location = URI.create("/api/events/" + created.id());
-
-        System.out.println("TESTING: Received event name: " + created.eventName());
-        System.out.println("TESTING: Received event type: " + created.eventType());
-
 
         return ResponseEntity.created(location).body(created);
     }

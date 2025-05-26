@@ -6,13 +6,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/")
 public class DefaultController {
 
-    public DefaultController() {
-        System.out.println("DefaultController called from controller");
-    }
-
     @GetMapping("/")
-    public String getAllAppointments() {
-        System.out.println("getAllAppointments called from controller");
+    public String controllerMethod() {
         return "Default Controller";
     }
 }
