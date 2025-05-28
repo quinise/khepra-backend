@@ -36,7 +36,7 @@ public class EventController {
     @PostMapping
     public ResponseEntity<EventDTO> createEvent(@RequestBody EventDTO eventDTO) {
         EventDTO created = eventService.saveEvent(eventDTO);
-        URI location = URI.create("/api/events/" + created.id());
+        URI location = URI.create("/api/events/" + created.getId());
 
         return ResponseEntity.created(location).body(created);
     }
