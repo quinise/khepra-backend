@@ -17,6 +17,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
 
     // Scheduling conflict check
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT a FROM Appointment a WHERE (:start < a.endTime AND :end > a.startTime)")
+    @Query("SELECT a FROM Appointment a WHERE a.startTime < :end AND a.endTime > :start")
     List<Appointment> findConflicts(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

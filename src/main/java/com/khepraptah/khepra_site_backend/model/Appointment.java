@@ -1,30 +1,28 @@
 package com.khepraptah.khepra_site_backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.*;
-
-
 import java.time.LocalDateTime;
 import java.util.Date;
+
 @Entity
 @Table(name = "appointments")
 public class Appointment implements Schedulable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "appointment_type")
     private String type;
 
     @Column(name = "user_id")
     private String userId;
+
     @Column(name = "client_name")
     private String name;
 
     @Column(name = "email")
     private String email;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -40,14 +38,25 @@ public class Appointment implements Schedulable {
     @Column(name = "duration")
     private int durationMinutes;
 
+    @Column(name = "street_address")
+    private String streetAddress;
+
     @Column(name = "city")
     private String city;
 
-    @Column(name = "isVirtual")
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "zip_code")
+    private Double zipCode;
+
+    @Column(name = "is_virtual")  // fix column name to snake_case
     private Boolean isVirtual;
 
     @Column(name = "created_by_admin")
     private Boolean createdByAdmin;
+
+    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -57,6 +66,7 @@ public class Appointment implements Schedulable {
         this.id = id;
     }
 
+    @Override
     public String getType() {
         return type;
     }
@@ -107,11 +117,21 @@ public class Appointment implements Schedulable {
 
     @Override
     public LocalDateTime getStartTime() {
-        return this.startTime;
+        return startTime;
     }
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+    }
+
+    // IMPORTANT: Use stored endTime field directly (remove calculated override)
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     public int getDuration() {
@@ -122,18 +142,37 @@ public class Appointment implements Schedulable {
         this.durationMinutes = durationMinutes;
     }
 
-    public LocalDateTime getEndTime() {
-        return startTime.plusMinutes(durationMinutes);
+    public String getStreetAddress() {
+        return streetAddress;
     }
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
+
+    public void setStreetAddress(String streetAddress) {
+        this.streetAddress = streetAddress;
     }
 
     @Override
-    public String getCity() { return this.city; }
+    public String getCity() {
+        return city;
+    }
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public Double getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(Double zipCode) {
+        this.zipCode = zipCode;
     }
 
     public Boolean getIsVirtualRaw() {
@@ -144,16 +183,16 @@ public class Appointment implements Schedulable {
         this.isVirtual = isVirtual;
     }
 
+    @Override
+    public boolean isVirtual() {
+        return Boolean.TRUE.equals(isVirtual); // safely handle null
+    }
+
     public Boolean getCreatedByAdmin() {
         return createdByAdmin;
     }
 
     public void setCreatedByAdmin(Boolean createdByAdmin) {
         this.createdByAdmin = createdByAdmin;
-    }
-
-    @Override
-    public boolean isVirtual() {
-        return Boolean.TRUE.equals(isVirtual); // safely handle null
     }
 }

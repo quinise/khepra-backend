@@ -2,8 +2,10 @@ package com.khepraptah.khepra_site_backend.controller;
 
 import com.khepraptah.khepra_site_backend.model.AppointmentDTO;
 import com.khepraptah.khepra_site_backend.service.AppointmentService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
@@ -66,8 +68,12 @@ public class AppointmentController {
         try {
             AppointmentDTO updatedAppointment = appointmentService.updateAppointment(id, appointmentDTO);
             return ResponseEntity.ok(updatedAppointment);
+        } catch (IllegalArgumentException e) {
+            // This likely means appointment not found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            // For other exceptions, return 500 error or handle accordingly
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
