@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,22 +36,37 @@ public class ScheduleConflictService {
             throw new IllegalArgumentException("Start time or end time cannot be null when checking for conflicts.");
         }
 
-        Duration buffer = BufferUtils.getBufferDuration(newItem);
-        LocalDateTime bufferedStart = newItem.getStartTime().minus(buffer);
-        LocalDateTime bufferedEnd = newItem.getEndTime().plus(buffer);
+        LocalDateTime newStart = newItem.getStartTime();
+        LocalDateTime newEnd = newItem.getEndTime();
 
-        List<Appointment> appointmentConflicts = appointmentRepo.findConflicts(bufferedStart, bufferedEnd)
-                .stream()
-                .filter(existing -> !existing.equals(newItem)) // avoid self-conflict
-                .collect(Collectors.toList());
+        System.out.println("✅ Checking conflicts for desired start = " + newStart + ", end = " + newEnd);
 
-        List<Event> eventConflicts = eventRepo.findConflicts(bufferedStart, bufferedEnd)
-                .stream()
-                .filter(existing -> !existing.equals(newItem)) // avoid self-conflict
-                .collect(Collectors.toList());
+        // Fetch all existing items (appointments + events)
+        List<Schedulable> existingItems = new ArrayList<>();
+        existingItems.addAll(appointmentRepo.findAll());
+        existingItems.addAll(eventRepo.findAll());
 
-        if (!appointmentConflicts.isEmpty() || !eventConflicts.isEmpty()) {
-            throw new ConflictException("‼️ Scheduling conflict detected, item not booked.");
+        for (Schedulable existing : existingItems) {
+            if (existing.equals(newItem)) continue;
+
+            LocalDateTime existingStart = existing.getStartTime();
+            LocalDateTime existingEnd = existing.getEndTime();
+            Duration buffer = BufferUtils.getBufferDuration(existing);
+
+            // BLOCKING RULE 1: Time overlap (normal)
+            boolean overlaps =
+                    newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+            if (overlaps) {
+                System.out.println("❌ Overlaps existing item: " + existing);
+                throw new ConflictException("‼️ Scheduling conflict detected: overlapping event.");
+            }
+
+            // BLOCKING RULE 2: Violates buffer window AFTER existing item
+            LocalDateTime blockedUntil = existingEnd.plus(buffer);
+            if (!newStart.isBefore(existingStart) && newStart.isBefore(blockedUntil)) {
+                System.out.println("❌ Violates buffer window after: " + existing);
+                throw new ConflictException("‼️ Scheduling conflict detected: violates buffer time.");
+            }
         }
     }
 }
