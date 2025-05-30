@@ -61,7 +61,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public AppointmentDTO saveAppointment(AppointmentDTO dto) {
         Appointment appointment = convertToEntity(dto);
+
         scheduleConflictService.checkForConflicts(appointment);
+
         Appointment saved = appointmentRepository.save(appointment);
         return convertToDto(saved);
     }
@@ -100,7 +102,10 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getStartTime(),
                 appointment.getEndTime(),
                 appointment.getDuration(),
+                appointment.getStreetAddress(),
                 appointment.getCity(),
+                appointment.getState(),
+                appointment.getZipCode(),
                 appointment.getIsVirtualRaw(),
                 appointment.getCreatedByAdmin()
         );
@@ -116,7 +121,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setPhoneNumber(appointmentDTO.phoneNumber());
         appointment.setDate(appointmentDTO.date());
         appointment.setStartTime(appointmentDTO.startTime());
-        appointment.setEndTime(appointmentDTO.endTime());
+        appointment.setEndTime(appointment.getStartTime().plusMinutes(appointment.getDuration()));
         try {
             AppointmentType appointmentType = AppointmentType.valueOf(appointmentDTO.type().toUpperCase());
             appointment.setDuration(appointmentType.getDurationMinutes());
@@ -124,7 +129,10 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new IllegalArgumentException("Invalid appointment type: " + appointmentDTO.type());
         }
 
+        appointment.setStreetAddress(appointmentDTO.streetAddress());
         appointment.setCity(appointmentDTO.city());
+        appointment.setState(appointmentDTO.state());
+        appointment.setZipCode(appointmentDTO.zipCode());
         appointment.setIsVirtual(appointmentDTO.isVirtual());
         appointment.setCreatedByAdmin(appointmentDTO.createdByAdmin());
         return appointment;

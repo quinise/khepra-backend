@@ -121,7 +121,7 @@ class EventServiceImpl implements EventService {
         return new EventDTO(
                 event.getId(),
                 event.getEventName(),
-                event.getEventType(),
+                event.getType(),
                 event.getClientName(),
                 event.getStartDate(),
                 event.getEndDate(),

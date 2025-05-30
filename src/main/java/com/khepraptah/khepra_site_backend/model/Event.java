@@ -66,7 +66,10 @@ public class Event implements Schedulable {
     public String getEventName() { return eventName; }
     public void setEventName(String eventName) { this.eventName = eventName; }
 
-    public String getEventType() { return eventType; }
+    @Override
+    public String getType() {
+        return this.eventType;
+    }
     public void setEventType(String eventType) { this.eventType = eventType; }
 
     public String getClientName() { return clientName; }
