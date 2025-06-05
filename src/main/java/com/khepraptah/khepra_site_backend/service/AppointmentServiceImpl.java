@@ -61,7 +61,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public AppointmentDTO saveAppointment(AppointmentDTO dto) {
         Appointment appointment = convertToEntity(dto);
-
+        appointment.calculateEndTime();
         scheduleConflictService.checkForConflicts(appointment);
 
         Appointment saved = appointmentRepository.save(appointment);

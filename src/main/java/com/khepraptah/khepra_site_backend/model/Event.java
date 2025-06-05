@@ -92,12 +92,12 @@ public class Event implements Schedulable {
     @PreUpdate
     public void calculateEndTime() {
         if (startTime != null && durationMinutes > 0) {
-            this.endTime = startTime.plusMinutes(durationMinutes);
+            this.endTime = this.startTime.plusMinutes(this.durationMinutes);
         }
     }
 
     public LocalDateTime getEndTime() {
-        return endTime.plusMinutes(durationMinutes);
+        return endTime;
     }
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;

@@ -124,6 +124,14 @@ public class Appointment implements Schedulable {
         this.startTime = startTime;
     }
 
+    @PrePersist
+    @PreUpdate
+    public void calculateEndTime() {
+        if (startTime != null && durationMinutes > 0) {
+            this.endTime = this.startTime.plusMinutes(this.durationMinutes);
+        }
+    }
+
     // IMPORTANT: Use stored endTime field directly (remove calculated override)
     @Override
     public LocalDateTime getEndTime() {
