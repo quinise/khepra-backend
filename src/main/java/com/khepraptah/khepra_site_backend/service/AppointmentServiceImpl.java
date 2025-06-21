@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,7 +17,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
-
     private final AppointmentRepository appointmentRepository;
     private final ScheduleConflictService scheduleConflictService;
 
@@ -26,11 +26,40 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public List<AppointmentDTO> getAllAppointments() {
-        return appointmentRepository.findAll().stream()
+    public List<AppointmentDTO> getAllAppointments(String userId, String email, boolean includeAdminAppointments) {
+        if (userId == null && email == null) {
+            throw new IllegalArgumentException("Either userId or email must be provided.");
+        }
+
+        List<Appointment> appointments = new ArrayList<>();
+
+        // Fetch appointments based on userId or email
+        if (userId != null && !userId.isEmpty()) {
+            appointments = appointmentRepository.findByUserId(userId);
+        } else if (email != null && !email.isEmpty()) {
+            appointments = appointmentRepository.findByEmail(email);
+        }
+
+        // If admin-created appointments should be included, fetch those too
+        if (includeAdminAppointments) {
+            List<Appointment> adminAppointments;
+            if (userId != null && !userId.isEmpty()) {
+                adminAppointments = appointmentRepository.findAdminCreatedAppointmentsByUserId(userId);
+            } else if (email != null && !email.isEmpty()) {
+                adminAppointments = appointmentRepository.findAdminCreatedAppointmentsByEmail(email);
+            } else {
+                adminAppointments = new ArrayList<>();
+            }
+
+            appointments.addAll(adminAppointments);
+        }
+
+        // Convert to DTO and return the result
+        return appointments.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public Optional<AppointmentDTO> getAppointmentById(Long id) {
@@ -56,7 +85,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 })
                 .collect(Collectors.toList());
     }
-
 
     @Transactional
     public AppointmentDTO saveAppointment(AppointmentDTO dto) {

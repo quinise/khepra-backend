@@ -15,6 +15,14 @@ import java.util.List;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
     List<Appointment> findByUserId(String userId);
 
+    List<Appointment> findByEmail(String email);
+
+    @Query("SELECT a FROM Appointment a WHERE a.userId = :userId AND a.createdByAdmin = true")
+    List<Appointment> findAdminCreatedAppointmentsByUserId(@Param("userId") String userId);
+
+    @Query("SELECT a FROM Appointment a WHERE a.email = :email AND a.createdByAdmin = true")
+    List<Appointment> findAdminCreatedAppointmentsByEmail(@Param("email") String email);
+
     // Scheduling conflict check
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Appointment a WHERE a.startTime < :end AND a.endTime > :start")
