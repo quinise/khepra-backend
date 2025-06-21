@@ -28,12 +28,18 @@ public class AppointmentController {
     @GetMapping
     public ResponseEntity<List<AppointmentDTO>> getAppointments(
             @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String email,
             @RequestParam(required = false) String filter,
-            @RequestParam(required = false) Integer daysRange // optional, for extended control
+            @RequestParam(required = false) Integer daysRange, // optional, for extended control
+            @RequestParam(defaultValue = "false") Boolean includeAdminAppointments
     ) {
-        List<AppointmentDTO> appointments = (userId != null && !userId.isEmpty())
-                ? appointmentService.getAppointmentsByUserId(userId)
-                : appointmentService.getAllAppointments();
+        List<AppointmentDTO> appointments;
+
+        if (userId == null && email == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        appointments = appointmentService.getAllAppointments(userId, email, includeAdminAppointments);
 
         LocalDateTime now = LocalDateTime.now();
 
