@@ -14,7 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +49,19 @@ class AppointmentRepositoryTest {
         appointment2.setStartTime(LocalDateTime.of(2025, 6, 1, 11, 0));
         appointment2.setEndTime(LocalDateTime.of(2025, 6, 1, 12, 0));
         appointmentRepository.save(appointment2);
+
+        Appointment adminAppointment = new Appointment();
+        adminAppointment.setEmail("admin@test.com");
+        adminAppointment.setCreatedByAdmin(true);
+        adminAppointment.setUserId("someUserId");
+        adminAppointment.setDate(Date.from(LocalDate.of(2025, 6, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        adminAppointment.setStartTime(LocalDateTime.of(2025, 6, 1, 10, 0));
+        adminAppointment.setEndTime(LocalDateTime.of(2025, 6, 1, 10, 30));
+        adminAppointment.setDuration(30);
+        adminAppointment.setType("READING");
+        adminAppointment.setIsVirtual(true);
+
+        appointmentRepository.save(adminAppointment);
     }
 
     @Test
@@ -60,6 +76,20 @@ class AppointmentRepositoryTest {
 
         List<Appointment> noAppointments = appointmentRepository.findByUserId("unknown");
         assertThat(noAppointments).isEmpty();
+    }
+
+    @Test
+    void testFindAdminCreatedAppointmentsByUserId() {
+        List<Appointment> result = appointmentRepository.findAdminCreatedAppointmentsByUserId("someUserId");
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getCreatedByAdmin()).isTrue();
+    }
+
+    @Test
+    void testFindAdminCreatedAppointmentsByEmail() {
+        List<Appointment> result = appointmentRepository.findAdminCreatedAppointmentsByEmail("admin@test.com");
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getCreatedByAdmin()).isTrue();
     }
 
     @Test
