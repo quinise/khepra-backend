@@ -60,7 +60,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public Optional<AppointmentDTO> getAppointmentById(Long id) {
         return appointmentRepository.findById(id)
