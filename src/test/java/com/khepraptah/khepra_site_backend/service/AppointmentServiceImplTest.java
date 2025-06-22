@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -115,5 +116,45 @@ class AppointmentServiceImplTest {
         assertEquals("CLEANSING", result.get().type());
         assertEquals("Another User", result.get().name());
         assertEquals("user999", result.get().userId());
+    }
+
+    @Test
+    void testGetAllAppointmentsByUserIdIncludingAdmin() {
+        String userId = "user123";
+        String email = "test@example.com";
+        boolean includeAdminAppointments = true;
+
+        Appointment userAppointment = new Appointment();
+        userAppointment.setUserId(userId);
+        userAppointment.setCreatedByAdmin(false);
+
+        Appointment adminAppointment = new Appointment();
+        adminAppointment.setUserId(userId);
+        adminAppointment.setCreatedByAdmin(true);
+
+        when(appointmentRepository.findByUserId(userId)).thenReturn(new ArrayList<>(Arrays.asList(adminAppointment)));
+        when(appointmentRepository.findAdminCreatedAppointmentsByUserId(userId)).thenReturn(new ArrayList<>(Arrays.asList(adminAppointment)));
+
+        List<AppointmentDTO> result = appointmentService.getAllAppointments(userId, email, includeAdminAppointments);
+
+        assertThat(result).hasSize(2);
+    }
+
+    @Test
+    void testGetAllAppointmentsByEmailIncludingAdmin() {
+        String userId = null;
+        String email = "test@example.com";
+        boolean includeAdminAppointments = true;
+
+        Appointment adminAppointment = new Appointment();
+        adminAppointment.setEmail(email);
+        adminAppointment.setCreatedByAdmin(true);
+
+        when(appointmentRepository.findAdminCreatedAppointmentsByEmail(email)).thenReturn(new ArrayList<>(Arrays.asList(adminAppointment)));
+
+        List<AppointmentDTO> result = appointmentService.getAllAppointments(userId, email, includeAdminAppointments);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).email()).isEqualTo(email);
     }
 }
