@@ -1,4 +1,8 @@
 ### Java ###
+
+# Application Properties
+../khepra-backend/src/main/resources/application.properties
+
 # Compiled class file
 *.class
 

@@ -31,7 +31,7 @@ public class ScheduleConflictService {
      * considering buffer times.
      */
     @Transactional
-    public void checkForConflicts(Schedulable newItem) {
+    public boolean checkForConflicts(Schedulable newItem) {
         if (newItem.getStartTime() == null || newItem.getEndTime() == null) {
             throw new IllegalArgumentException("Start time or end time cannot be null when checking for conflicts.");
         }
@@ -58,15 +58,17 @@ public class ScheduleConflictService {
                     newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
             if (overlaps) {
                 System.out.println("❌ Overlaps existing item: " + existing);
-                throw new ConflictException("‼️ Scheduling conflict detected: overlapping event.");
+                return true;
             }
 
             // BLOCKING RULE 2: Violates buffer window AFTER existing item
             LocalDateTime blockedUntil = existingEnd.plus(buffer);
             if (!newStart.isBefore(existingStart) && newStart.isBefore(blockedUntil)) {
                 System.out.println("❌ Violates buffer window after: " + existing);
-                throw new ConflictException("‼️ Scheduling conflict detected: violates buffer time.");
+                return true;
             }
         }
+
+        return false;
     }
 }

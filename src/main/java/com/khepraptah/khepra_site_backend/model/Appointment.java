@@ -132,7 +132,6 @@ public class Appointment implements Schedulable {
         }
     }
 
-    // IMPORTANT: Use stored endTime field directly (remove calculated override)
     @Override
     public LocalDateTime getEndTime() {
         return endTime;
