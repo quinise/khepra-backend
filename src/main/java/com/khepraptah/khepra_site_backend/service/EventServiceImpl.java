@@ -16,10 +16,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final ScheduleConflictService scheduleConflictService;
+    private static final Logger logger = LoggerFactory.getLogger(AppointmentServiceImpl.class);
 
     public EventServiceImpl(EventRepository eventRepository, ScheduleConflictService scheduleConflictService) {
         this.eventRepository = eventRepository;
@@ -43,8 +47,15 @@ class EventServiceImpl implements EventService {
         validateEvent(eventDTO);
         Event event = convertToEntity(eventDTO);
         event.calculateEndTime();
-        scheduleConflictService.checkForConflicts(event);
+
+        // Move the conflict check inside the service
+        if (scheduleConflictService.checkForConflicts(event)) {
+            throw new IllegalArgumentException("This event conflicts with an existing one.");
+        }
+
         Event savedEvent = eventRepository.save(event);
+        // Log the action
+        logger.info("Scheduler Admin {} saved event {} at {}", event.getId(), LocalDateTime.now());
         return convertToDTO(savedEvent);
     }
 
@@ -92,7 +103,7 @@ class EventServiceImpl implements EventService {
         event.setStartTime(eventDTO.getStartTime());
 
         try {
-            EventType appointmentType =EventType.valueOf(eventDTO.getEventType().toUpperCase());
+            EventType appointmentType = EventType.valueOf(eventDTO.getEventType().toUpperCase());
             event.setDuration(appointmentType.getDurationMinutes());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid appointment type: " + eventDTO.getEventType());
@@ -106,9 +117,14 @@ class EventServiceImpl implements EventService {
         event.setDescription(eventDTO.getDescription());
         event.setIsVirtual(eventDTO.getIsVirtual());
 
-        scheduleConflictService.checkForConflicts(event);
+        // Move the conflict check inside the service
+        if (scheduleConflictService.checkForConflicts(event)) {
+            throw new IllegalArgumentException("This event conflicts with an existing one.");
+        }
 
         Event updateEvent = eventRepository.save(event);
+
+        logger.info("Scheduler Admin {} updated event {} at {}", id, LocalDateTime.now());
         return convertToDTO(updateEvent);
     }
 

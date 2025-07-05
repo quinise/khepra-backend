@@ -15,10 +15,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ScheduleConflictService scheduleConflictService;
+    private static final Logger logger = LoggerFactory.getLogger(AppointmentServiceImpl.class);
 
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository, ScheduleConflictService scheduleConflictService) {
         this.appointmentRepository = appointmentRepository;
@@ -40,7 +44,7 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointments = appointmentRepository.findByEmail(email);
         }
 
-        // If admin-created appointments should be included, fetch those too
+        // If admin-created appointments should be included fetch them
         if (includeAdminAppointments) {
             List<Appointment> adminAppointments;
             if (userId != null && !userId.isEmpty()) {
@@ -89,9 +93,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentDTO saveAppointment(AppointmentDTO dto) {
         Appointment appointment = convertToEntity(dto);
         appointment.calculateEndTime();
-        scheduleConflictService.checkForConflicts(appointment);
+
+        if (scheduleConflictService.checkForConflicts(appointment)) {
+            throw new IllegalArgumentException("This appointment conflicts with an existing one.");
+        }
 
         Appointment saved = appointmentRepository.save(appointment);
+
+        logger.info("Scheduler Admin saved appointment {} at {}", appointment.getId(), LocalDateTime.now());
         return convertToDto(saved);
     }
 
@@ -103,11 +112,15 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         Appointment updated = convertToEntity(dto);
-        updated.setId(id); // Make sure to preserve the existing ID
+        updated.setId(id); // Preserve the existing ID
 
-        scheduleConflictService.checkForConflicts(updated);
+        if (scheduleConflictService.checkForConflicts(updated)) {
+            throw new IllegalArgumentException("This appointment conflicts with an existing one.");
+        }
 
         Appointment saved = appointmentRepository.save(updated);
+
+        logger.info("Scheduler Admin updated appointment {} at {}", id, LocalDateTime.now());
         return convertToDto(saved);
     }
 
@@ -116,7 +129,6 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointmentRepository.deleteById(id);
     }
 
-    // ---- Conversion Methods ----
     private AppointmentDTO convertToDto(Appointment appointment) {
         return new AppointmentDTO(
                 appointment.getId(),
