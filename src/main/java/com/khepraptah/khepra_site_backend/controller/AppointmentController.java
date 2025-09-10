@@ -31,15 +31,12 @@ public class AppointmentController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String filter,
             @RequestParam(required = false) Integer daysRange, // optional, for extended control
-            @RequestParam(defaultValue = "false") Boolean includeAdminAppointments
+            @RequestParam(defaultValue = "true") boolean includeAdminAppointments
     ) {
-        List<AppointmentDTO> appointments;
-
-        if (userId == null && email == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
-        appointments = appointmentService.getAllAppointments(userId, email, includeAdminAppointments);
+        List<AppointmentDTO> appointments =
+                (userId != null && !userId.isBlank()) || (email != null && !email.isBlank())
+                        ? appointmentService.getAllAppointments(userId, email, includeAdminAppointments)
+                        : appointmentService.getAll(includeAdminAppointments);
 
         LocalDateTime now = LocalDateTime.now();
 

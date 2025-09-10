@@ -65,6 +65,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    public List<AppointmentDTO> getAll(boolean includeAdminAppointments) {
+        List<Appointment> rows = includeAdminAppointments
+                ? appointmentRepository.findAllOrderByStartTimeAsc()
+                : appointmentRepository.findByCreatedByAdminFalseOrderByStartTimeAsc();
+
+        return rows.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<AppointmentDTO> getAppointmentById(Long id) {
         return appointmentRepository.findById(id)
                 .map(this::convertToDto);

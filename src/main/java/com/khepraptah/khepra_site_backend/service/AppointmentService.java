@@ -11,6 +11,8 @@ import java.util.Optional;
 @Service
 public interface AppointmentService {
     List<AppointmentDTO> getAllAppointments(String userId, String email, boolean includeAdminAppointments);
+    // NEW: fetch all appointments; if includeAdminAppointments is false, exclude admin-created
+    List<AppointmentDTO> getAll(boolean includeAdminAppointments);
     Optional<AppointmentDTO> getAppointmentById(Long id);
     AppointmentDTO saveAppointment(AppointmentDTO appointmentDTO);
     AppointmentDTO updateAppointment(Long id, AppointmentDTO appointmentDTO);

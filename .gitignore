@@ -3,6 +3,11 @@
 # Application Properties
 ../khepra-backend/src/main/resources/application.properties
 
+# Firebase Config file
+
+# Security Configutrations
+../khepra-backend/src/main/java/com/khepraptah/khepra_site_backend/config/SecurityConfig.java
+
 # Compiled class file
 *.class
 
