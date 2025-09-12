@@ -23,6 +23,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>{
     @Query("SELECT a FROM Appointment a WHERE a.email = :email AND a.createdByAdmin = true")
     List<Appointment> findAdminCreatedAppointmentsByEmail(@Param("email") String email);
 
+    @Query("SELECT a FROM Appointment a ORDER BY a.startTime ASC")
+    List<Appointment> findAllOrderByStartTimeAsc();
+
+    List<Appointment> findByCreatedByAdminFalseOrderByStartTimeAsc();
+
     // Scheduling conflict check
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Appointment a WHERE a.startTime < :end AND a.endTime > :start")

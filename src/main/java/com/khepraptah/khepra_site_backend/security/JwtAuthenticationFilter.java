@@ -66,12 +66,8 @@ public class JwtAuthenticationFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Initialization logic (if any)
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void destroy() {
-        // Cleanup logic (if any)
-    }
+    public void destroy() {}
 }
