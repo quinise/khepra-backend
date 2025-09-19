@@ -1,9 +1,16 @@
 # Schedule Hub Backend (Spring Boot + PostgreSQL)
 
-[![Build](https://img.shields.io/badge/build-passing-brightgreen)]() 
-[![License](https://img.shields.io/badge/license-MIT-blue)]() 
-[![Spring Boot](https://img.shields.io/badge/spring%20boot-3.x-green)]() 
-[![PostgreSQL](https://img.shields.io/badge/postgresql-15-blue)]()
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" />
+  </a>
+  <a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/spring%20boot-3.x-green" alt="Spring Boot" />
+  </a>
+  <a href="https://www.postgresql.org/" target="_blank" rel="noopener noreferrer">
+    <img src="https://img.shields.io/badge/postgresql-15-blue" alt="PostgreSQL" />
+  </a>
+</p>
 
 Backend service for the **Schedule Hub App**, providing secure APIs for managing appointments, events, user accounts, and scheduling conflict detection. Built with **Spring Boot** and **PostgreSQL**, it powers the Angular frontend with REST endpoints and real-time validation.
 
